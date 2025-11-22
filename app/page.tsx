@@ -1,205 +1,420 @@
 /**
- * Stellar Payment Dashboard - Main Page
- * 
- * This is the main page that brings all components together.
- * All blockchain logic is in lib/stellar-helper.ts (DO NOT MODIFY)
- * 
- * Your job: Make this UI/UX amazing! 🎨
+ * StellaHub - Code & Project Ownership System (Final Unified Version)
+ *
+ * Tüm bileşenler (Dashboard, Creator, Manager) tek bir Home.tsx dosyasına entegre edilmiştir.
+ * Proje: GitHub benzeri, Stellar üzerinde tokenleştirilmiş kod sahipliği platformu.
  */
 
 'use client';
 
 import { useState } from 'react';
+
+// DIKKAT: Bu importlar muhtemelen sizin projenizdeki /components klasöründen geliyor.
+// Bu kısımların varlığını korumak zorundayız, aksi takdirde kod çalışmaz.
 import WalletConnection from '@/components/WalletConnection';
-import BalanceDisplay from '@/components/BalanceDisplay';
-import PaymentForm from '@/components/PaymentForm';
-import TransactionHistory from '@/components/TransactionHistory';
+import TokenizedProjectDisplay from '@/components/BalanceDisplay';
+import ProjectTransferForm from '@/components/PaymentForm';
+import OwnershipHistory from '@/components/TransactionHistory';
+
+// Sekme İsimleri
+type Tab = 'dashboard' | 'creator' | 'manager';
+
+// ====================================================================
+// YARDIMCI BİLEŞENLER (Bu dosya içinde tanımlandı)
+// ====================================================================
+
+// 1. Proje Oluşturma Formu (Project Creator)
+interface ProjectCreatorProps {
+  publicKey: string;
+}
+
+const ProjectCreator: React.FC<ProjectCreatorProps> = ({ publicKey }) => {
+  const [assetCode, setAssetCode] = useState('');
+  const [projectUrl, setProjectUrl] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setStatus('idle');
+    
+    // ARKA PLAN SIMÜLASYONU
+    console.log("Yeni Proje (Asset) oluşturuluyor...", { assetCode, projectUrl, creator: publicKey });
+
+    setTimeout(() => {
+        setIsLoading(false);
+        setStatus('success'); 
+    }, 2000);
+  };
+
+  return (
+    <div className="bg-gray-800 p-8 rounded-2xl shadow-xl border border-indigo-500/30">
+      <h3 className="text-2xl font-bold text-white mb-6">Tokenize Yeni Proje</h3>
+      <p className="text-gray-400 mb-6">
+        Projeniz için benzersiz bir Owner Token'ı (Stellar Asset) oluşturun. Token, otomatik olarak cüzdanınıza tanımlanacaktır.
+      </p>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label htmlFor="assetCode" className="block text-sm font-medium text-gray-300 mb-2">
+            Proje Kodu (Asset Code, Örn: MYCODE1, MAX 12 Karakter)
+          </label>
+          <input
+            id="assetCode"
+            type="text"
+            value={assetCode}
+            onChange={(e) => setAssetCode(e.target.value.toUpperCase().slice(0, 12))}
+            required
+            placeholder="PROJE_TOKENI"
+            className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:ring-indigo-500 focus:border-indigo-500"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="projectUrl" className="block text-sm font-medium text-gray-300 mb-2">
+            GitHub/Proje URL
+          </label>
+          <input
+            id="projectUrl"
+            type="url"
+            value={projectUrl}
+            onChange={(e) => setProjectUrl(e.target.value)}
+            required
+            placeholder="https://github.com/kullanici/proje-adi"
+            className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:ring-indigo-500 focus:border-indigo-500"
+          />
+        </div>
+        
+        <div className='bg-gray-700/50 p-3 rounded-lg border border-indigo-500/50'>
+            <p className='text-sm text-indigo-300'>⚠️ Not: Mülkiyet tokenı olarak, arzı **1 adet** olarak belirlenir. Bu token transferi, projenin tüm sahipliğini aktarır.</p>
+        </div>
+
+        <button
+          type="submit"
+          disabled={isLoading}
+          className={`w-full py-3 px-4 rounded-lg text-white font-semibold transition-colors duration-200 ${
+            isLoading
+              ? 'bg-indigo-700/70 cursor-not-allowed'
+              : 'bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-600/40'
+          }`}
+        >
+          {isLoading ? 'Token Oluşturuluyor...' : '✅ Projeyi Tokenize Et'}
+        </button>
+      </form>
+
+      {status === 'success' && (
+        <div className="mt-4 p-4 bg-green-900/50 text-green-300 rounded-lg border border-green-600/50">
+          Proje Tokenı Başarıyla Oluşturuldu!
+        </div>
+      )}
+    </div>
+  );
+};
+
+
+// 2. Proje Yöneticisi Formu (Project Manager)
+interface ProjectManagerProps {
+    publicKey: string;
+}
+
+const ProjectManager: React.FC<ProjectManagerProps> = ({ publicKey }) => {
+    const [assetCode, setAssetCode] = useState('');
+    const [newVersion, setNewVersion] = useState('');
+    const [newDescription, setNewDescription] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setStatus('idle');
+        
+        // ARKA PLAN SIMÜLASYONU
+        console.log("Proje meta verisi güncelleniyor...", { assetCode, newVersion, newDescription, issuer: publicKey });
+
+        setTimeout(() => {
+            setIsLoading(false);
+            setStatus('success'); 
+        }, 2000);
+    };
+
+    return (
+        <div className="bg-gray-800 p-8 rounded-2xl shadow-xl border border-indigo-500/30">
+            <h3 className="text-2xl font-bold text-white mb-6">Sürüm ve Metadata Güncelle</h3>
+            <p className="text-gray-400 mb-6">
+                Bu işlemi sadece tokenın dağıtıcı (Issuer) hesabı yapabilir. Güncelleme, projenizin yaşam döngüsünü yönetmenizi sağlar.
+            </p>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                    <label htmlFor="assetCode" className="block text-sm font-medium text-gray-300 mb-2">
+                        Güncellenecek Proje Kodu (Asset Code)
+                    </label>
+                    <input
+                        id="assetCode"
+                        type="text"
+                        value={assetCode}
+                        onChange={(e) => setAssetCode(e.target.value.toUpperCase())}
+                        required
+                        placeholder="MEVCUT_PROJE"
+                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                </div>
+
+                <div>
+                    <label htmlFor="newVersion" className="block text-sm font-medium text-gray-300 mb-2">
+                        Yeni Sürüm (Versiyon) Numarası
+                    </label>
+                    <input
+                        id="newVersion"
+                        type="text"
+                        value={newVersion}
+                        onChange={(e) => setNewVersion(e.target.value)}
+                        required
+                        placeholder="v2.0.1"
+                        className="w-full p-3 bg-gray-700/80 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                </div>
+
+                <div>
+                    <label htmlFor="newDescription" className="block text-sm font-medium text-gray-300 mb-2">
+                        Güncelleme Notları / Açıklama
+                    </label>
+                    <textarea
+                        id="newDescription"
+                        value={newDescription}
+                        onChange={(e) => setNewDescription(e.target.value)}
+                        rows={3}
+                        required
+                        placeholder="Önemli hata düzeltmeleri ve yeni API entegrasyonu yapıldı."
+                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                </div>
+                
+                <button
+                    type="submit"
+                    disabled={isLoading}
+                    className={`w-full py-3 px-4 rounded-lg text-white font-semibold transition-colors duration-200 ${
+                        isLoading
+                            ? 'bg-red-700/70 cursor-not-allowed'
+                            : 'bg-red-600 hover:bg-red-700 shadow-lg shadow-red-600/40'
+                    }`}
+                >
+                    {isLoading ? 'Metadata Güncelleniyor...' : '✍️ Meta Veriyi Güncelle'}
+                </button>
+            </form>
+
+            {status === 'success' && (
+                <div className="mt-4 p-4 bg-green-900/50 text-green-300 rounded-lg border border-green-600/50">
+                    Proje Meta Verisi Başarıyla Güncellendi!
+                </div>
+            )}
+        </div>
+    );
+};
+
+
+// 3. Rehber Kartı (GuideCard)
+const GuideCard = ({ title, description, icon }: { title: string, description: string, icon: string }) => (
+    <div className="bg-gray-700/50 rounded-xl p-6 border border-indigo-600/50 hover:bg-gray-700 transition-colors">
+        <div className="w-12 h-12 bg-indigo-500/30 rounded-xl flex items-center justify-center mb-4 text-3xl font-extrabold text-indigo-300">
+            {icon}
+        </div>
+        <h3 className="text-white font-semibold mb-2 text-lg">{title}</h3>
+        <p className="text-gray-400 text-sm">{description}</p>
+    </div>
+);
+
+// 4. Özellik Kartı (FeatureCard)
+const FeatureCard = ({ icon, title, description }: { icon: string, title: string, description: string }) => (
+    <div className="bg-gray-700/50 rounded-xl p-6 border border-gray-600 hover:border-indigo-500 transition-all duration-300 shadow-md">
+        <div className="text-4xl mb-3">{icon}</div>
+        <h3 className="text-indigo-300 font-bold mb-2 text-xl">{title}</h3>
+        <p className="text-gray-400 text-sm">{description}</p>
+    </div>
+);
+
+// ====================================================================
+// ANA KOMPONENT (Home.tsx)
+// ====================================================================
 
 export default function Home() {
   const [publicKey, setPublicKey] = useState<string>('');
   const [isConnected, setIsConnected] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [activeTab, setActiveTab] = useState<Tab>('dashboard'); 
 
   const handleConnect = (key: string) => {
     setPublicKey(key);
     setIsConnected(true);
+    setActiveTab('dashboard');
   };
 
   const handleDisconnect = () => {
     setPublicKey('');
     setIsConnected(false);
+    setActiveTab('dashboard');
   };
 
-  const handlePaymentSuccess = () => {
-    // Refresh balance and transaction history
+  const handleTransferSuccess = () => {
     setRefreshKey(prev => prev + 1);
   };
+  
+  // Tab stili için yardımcı fonksiyon
+  const getTabClasses = (tabName: Tab) => 
+    `px-6 py-2.5 text-lg font-semibold transition-all duration-200 rounded-lg ${
+      activeTab === tabName
+        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
+        : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+    }`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
-      {/* Header */}
-      <header className="border-b border-white/10 backdrop-blur-sm bg-black/20">
-        <div className="max-w-7xl mx-auto px-4 py-6">
+    <div className="min-h-screen bg-gray-900 text-white font-sans">
+      
+      {/* Header - Sleek and Professional */}
+      <header className="sticky top-0 z-10 border-b border-indigo-500/30 backdrop-blur-md bg-gray-900/80">
+        <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-2xl">
-                ⭐
+            <div className="flex items-center gap-4">
+              <div className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">
+                🚀
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">Stellar Dashboard</h1>
-                <p className="text-white/60 text-sm">Testnet Payment Interface</p>
+                <h1 className="text-2xl font-bold text-white tracking-wider">StellaHub</h1>
+                <p className="text-indigo-400 text-xs mt-0.5 uppercase tracking-widest">
+                  Tokenized Code Ownership
+                </p>
               </div>
             </div>
-            
             <div className="flex items-center gap-4">
-              <a
-                href="https://stellar.org"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white/60 hover:text-white text-sm transition-colors"
-              >
-                About Stellar
-              </a>
-              <a
-                href="https://github.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white/60 hover:text-white text-sm transition-colors"
-              >
-                GitHub
-              </a>
+              <WalletConnection onConnect={handleConnect} onDisconnect={handleDisconnect} />
             </div>
           </div>
         </div>
       </header>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* Welcome Banner */}
+      
+      <main className="max-w-7xl mx-auto px-4 py-12">
+        {/* Bağlantı Kesik Durum */}
         {!isConnected && (
-          <div className="mb-8 bg-gradient-to-r from-blue-500/20 to-purple-600/20 border border-blue-500/30 rounded-2xl p-8 text-center">
-            <h2 className="text-3xl font-bold text-white mb-3">
-              Welcome to Stellar Payment Dashboard! 👋
+          <div className="mb-12 bg-gray-800/50 border border-indigo-500/40 rounded-3xl p-10 text-center shadow-2xl">
+             <h2 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-indigo-400 mb-4">
+              Unlock the Future of Code Ownership
             </h2>
-            <p className="text-white/70 max-w-2xl mx-auto">
-              Connect your wallet to view your balance, send XLM payments, and track your transaction history.
-              All on Stellar's lightning-fast blockchain.
+            <p className="text-gray-400 max-w-3xl mx-auto text-lg">
+              Connect your wallet to manage your tokenized projects, transfer ownership (sell/license), and track history on the **Stellar Testnet**.
             </p>
+            <div className="mt-10 grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <GuideCard icon="💳" title="Get Wallet" description="Install a Stellar-compatible wallet like Freighter or xBull." />
+              <GuideCard icon="🔗" title="Connect" description="Use the 'Connect Wallet' button to approve access to your public key." />
+              <GuideCard icon="💰" title="Fund Testnet" description="Use Friendbot to get free Testnet XLM to cover transaction fees." />
+              <GuideCard icon="💼" title="Manage Projects" description="View your owned Project Tokens (Assets) and transfer them instantly." />
+            </div>
           </div>
         )}
 
-        {/* Wallet Connection */}
-        <div className="mb-8">
-          <WalletConnection onConnect={handleConnect} onDisconnect={handleDisconnect} />
-        </div>
-
-        {/* Dashboard Content - Only show when connected */}
+        {/* BAĞLI KULLANICI PANOSU */}
         {isConnected && publicKey && (
-          <div className="space-y-8">
-            {/* Balance Section */}
-            <div key={`balance-${refreshKey}`}>
-              <BalanceDisplay publicKey={publicKey} />
+          <div className="space-y-10">
+            {/* Sekme Navigasyonu */}
+            <div className="flex border-b border-gray-700/50 mb-8">
+              <button 
+                className={getTabClasses('dashboard')} 
+                onClick={() => setActiveTab('dashboard')}
+              >
+                📊 Dashboard
+              </button>
+              <button 
+                className={getTabClasses('creator')} 
+                onClick={() => setActiveTab('creator')}
+              >
+                🛠️ Project Creator
+              </button>
+              <button 
+                className={getTabClasses('manager')} 
+                onClick={() => setActiveTab('manager')}
+              >
+                📝 Project Manager
+              </button>
             </div>
+            
+            {/* Sekme İçerikleri */}
+            <div className="p-0">
+                {/* 1. Dashboard Sekmesi */}
+                {activeTab === 'dashboard' && (
+                    <div className="space-y-10">
+                        {/* Cüzdan ve Bakiye (TokenizedProjectDisplay) */}
+                        <section className="p-8 bg-gray-800 rounded-2xl shadow-xl border border-indigo-500/30">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <h2 className="text-xl font-semibold text-indigo-400 mb-1">
+                                        Connected Wallet:
+                                    </h2>
+                                    <p className="text-sm font-mono text-gray-300 break-all bg-gray-700/50 p-2 rounded-lg inline-block">
+                                        {publicKey}
+                                    </p>
+                                </div>
+                                <div className="text-right" key={`balance-${refreshKey}`}>
+                                    <TokenizedProjectDisplay publicKey={publicKey} />
+                                </div>
+                            </div>
+                        </section>
 
-            {/* Two Column Layout for Payment Form and Transaction History */}
-            <div className="grid lg:grid-cols-2 gap-8">
-              {/* Payment Form */}
-              <div>
-                <PaymentForm publicKey={publicKey} onSuccess={handlePaymentSuccess} />
-              </div>
+                        {/* Transfer ve Geçmiş */}
+                        <div className="grid lg:grid-cols-5 gap-10">
+                            <div className="lg:col-span-2">
+                                <ProjectTransferForm publicKey={publicKey} onSuccess={handleTransferSuccess} />
+                            </div>
 
-              {/* Transaction History */}
-              <div key={`history-${refreshKey}`}>
-                <TransactionHistory publicKey={publicKey} />
-              </div>
-            </div>
+                            <div className="lg:col-span-3 p-8 bg-gray-800 rounded-2xl shadow-xl border border-indigo-500/30">
+                                <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                                    <span className="text-indigo-400">📜</span> Ownership & Transaction History
+                                </h3>
+                                <p className="text-sm text-gray-400 mb-4">
+                                    Recent transactions reflect the transfer of Project Assets or XLM payments.
+                                </p>
+                                <div key={`history-${refreshKey}`}>
+                                    <OwnershipHistory publicKey={publicKey} />
+                                </div>
+                            </div>
+                        </div>
 
-            {/* Info Cards */}
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 border border-white/10">
-                <div className="text-3xl mb-3">⚡</div>
-                <h3 className="text-white font-semibold mb-2">Lightning Fast</h3>
-                <p className="text-white/60 text-sm">
-                  Transactions settle in 3-5 seconds on Stellar network
-                </p>
-              </div>
+                        {/* Feature Cards */}
+                        <div className="grid md:grid-cols-3 gap-6 pt-4">
+                            <FeatureCard icon="⚡" title="Instant Transfer" description="Ownership changes are recorded in 3-5 seconds—faster than traditional escrows."/>
+                            <FeatureCard icon="💸" title="Micro Fees" description="Transaction costs are negligible (0.00001 XLM), making micro-licensing viable."/>
+                            <FeatureCard icon="⚙️" title="Asset Flexibility" description="Project tokens allow for fractional ownership, royalty streams, and complex licensing models."/>
+                        </div>
+                    </div>
+                )}
+                
+                {/* 2. Project Creator Sekmesi */}
+                {activeTab === 'creator' && (
+                    <div className="bg-gray-900 rounded-2xl">
+                        <ProjectCreator publicKey={publicKey} />
+                    </div>
+                )}
 
-              <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 border border-white/10">
-                <div className="text-3xl mb-3">💰</div>
-                <h3 className="text-white font-semibold mb-2">Low Fees</h3>
-                <p className="text-white/60 text-sm">
-                  Transaction fees are just 0.00001 XLM (~$0.000001)
-                </p>
-              </div>
-
-              <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 border border-white/10">
-                <div className="text-3xl mb-3">🔒</div>
-                <h3 className="text-white font-semibold mb-2">Secure</h3>
-                <p className="text-white/60 text-sm">
-                  Built on proven blockchain technology with wallet encryption
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Getting Started Guide - Only show when not connected */}
-        {!isConnected && (
-          <div className="mt-8 grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 border border-white/10">
-              <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center mb-4 text-2xl">
-                1️⃣
-              </div>
-              <h3 className="text-white font-semibold mb-2">Install a Wallet</h3>
-              <p className="text-white/60 text-sm">
-                Choose any Stellar wallet: Freighter, xBull, Lobstr, Albedo, and more!
-              </p>
-            </div>
-
-            <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 border border-white/10">
-              <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center mb-4 text-2xl">
-                2️⃣
-              </div>
-              <h3 className="text-white font-semibold mb-2">Connect</h3>
-              <p className="text-white/60 text-sm">
-                Click the connect button above and approve the connection request
-              </p>
-            </div>
-
-            <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 border border-white/10">
-              <div className="w-10 h-10 bg-pink-500/20 rounded-lg flex items-center justify-center mb-4 text-2xl">
-                3️⃣
-              </div>
-              <h3 className="text-white font-semibold mb-2">Get Testnet XLM</h3>
-              <p className="text-white/60 text-sm">
-                Use Friendbot to fund your testnet account with free XLM
-              </p>
-            </div>
-
-            <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 border border-white/10">
-              <div className="w-10 h-10 bg-indigo-500/20 rounded-lg flex items-center justify-center mb-4 text-2xl">
-                4️⃣
-              </div>
-              <h3 className="text-white font-semibold mb-2">Start Sending</h3>
-              <p className="text-white/60 text-sm">
-                Send XLM payments and track your transactions in real-time
-              </p>
+                {/* 3. Project Manager Sekmesi */}
+                {activeTab === 'manager' && (
+                    <div className="bg-gray-900 rounded-2xl">
+                        <ProjectManager publicKey={publicKey} />
+                    </div>
+                )}
             </div>
           </div>
         )}
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-white/10 mt-16">
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="text-center text-white/40 text-sm">
-            <p className="mb-2">
-              Built with ❤️ using Stellar SDK | Running on Testnet
-            </p>
-            <p className="text-xs">
-              ⚠️ This is a testnet application. Do not use real funds.
-            </p>
-          </div>
+      <footer className="border-t border-gray-700 mt-16 py-6">
+        <div className="max-w-7xl mx-auto px-4 text-center text-gray-500 text-sm">
+          <p className="mb-2">
+            StellaHub | Built on the Stellar Network | Testnet Interface
+          </p>
+          <p className="text-xs text-red-400">
+            ⚠️ This is a Testnet application. **Do not use real Stellar Lumens (XLM)**.
+          </p>
         </div>
       </footer>
     </div>
