@@ -88,4 +88,9 @@ This application is currently running on the Stellar Testnet.
 3.  **Create a Project:** Navigate to the **"Project Creator"** tab, enter a unique Asset Code (e.g., `MYAPP1`), and submit the form to tokenize your code.
 4.  **Transfer Ownership:** Go to the **"Dashboard"** tab, use the transfer form to send your newly created Project Token to another Stellar address.
 
-   ![Alt metin](images/logo.png)
+   ![Alt metin](images/stl1.png)
+   ![Alt metin](images/stl2.png)
+   ![Alt metin](images/stl3.png)
+   ![Alt metin](images/stl4.png)
+   ![Alt metin](images/stl5.png)
+   ![Alt metin](images/stl6.png)
