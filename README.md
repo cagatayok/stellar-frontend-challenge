@@ -94,3 +94,5 @@ This application is currently running on the Stellar Testnet.
    ![Alt metin](stl4.png)
    ![Alt metin](stl5.png)
    ![Alt metin](stl6.png)
+
+   Drive screen recording ->https://drive.google.com/file/d/1I5MRwSfHRHa2nEFwIQHVEU0pEV7rdGPu/view?usp=sharing
